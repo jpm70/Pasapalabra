@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Rosco de Sistemas Operativos</title>
+    <style>
+        /* --- ESTILOS GENERALES Y LAYOUT --- */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f4f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        h1 {
+            color: #1976D2; /* Azul principal para SO */
+            margin-bottom: 40px;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        /* --- ESTILOS DEL ROSCO (CÍRCULO DE LETRAS) --- */
+        #rosco-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            margin-bottom: 40px;
+            border-radius: 50%;
+            border: 5px solid #1976D2; /* Borde Azul Principal */
+            background-color: #e3f4fc; /* Fondo Azul muy claro */
+        }
+
+        .letter-slot {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            border-radius: 50%;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            transition: background-color 0.3s, transform 0.3s;
+            cursor: default;
+        }
+
+        /* Colores específicos para Sistemas Operativos */
+        .status-default { background-color: #42a5f5; border: 2px solid #1e88e5; } /* Azul claro */
+        .status-current { background-color: #ff9800; border: 3px solid #f57c00; transform: scale(1.2); z-index: 10; } /* Naranja (activo) */
+        .status-correct { background-color: #43a047; border: 2px solid #2e7d32; } /* Verde (Acierto) */
+        .status-incorrect { background-color: #e53935; border: 2px solid #c62828; } /* Rojo (Fallo) */
+        .status-passed { background-color: #9e9e9e; border: 2px solid #757575; } /* Gris (Pasapalabra) */
+
+
+        /* --- ÁREA DE JUEGO (DEFINICIÓN Y ENTRADA) --- */
+        #definition-area {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        #current-letter {
+            font-size: 2.5em;
+            color: #1976D2;
+            margin-bottom: 10px;
+        }
+
+        #definition {
+            font-size: 1.2em;
+            margin: 15px 0;
+            min-height: 50px;
+        }
+
+        #input-area {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        #answer-input {
+            padding: 10px;
+            font-size: 1.1em;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            width: 70%;
+            max-width: 300px;
+        }
+
+        .action-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #submit-button { background-color: #43a047; } /* Verde */
+        #submit-button:hover { background-color: #2e7d32; }
+
+        #pass-button { background-color: #ff9800; } /* Naranja */
+        #pass-button:hover { background-color: #f57c00; }
+
+        /* --- PUNTUACIÓN Y MENSAJES FINALES --- */
+        #score-board {
+            margin-top: 20px;
+            font-size: 1.2em;
+            display: flex;
+            gap: 30px;
+            font-weight: bold;
+        }
+
+        #final-message {
+            margin-top: 40px;
+            padding: 20px;
+            background-color: #fff3e0;
+            border: 3px solid #ff9800;
+            border-radius: 10px;
+            font-size: 1.5em;
+            display: none; /* Oculto inicialmente */
+        }
+        
+        .reset-button {
+            margin-top: 20px;
+            background-color: #1976D2; /* Botón Azul principal */
+        }
+
+        /* Media Query para pantallas pequeñas (móviles) */
+        @media (max-width: 600px) {
+            #rosco-container {
+                width: 300px;
+                height: 300px;
+            }
+            .letter-slot {
+                width: 30px;
+                height: 30px;
+                line-height: 30px;
+                font-size: 0.9em;
+            }
+            #definition-area {
+                padding: 15px;
+            }
+            #answer-input {
+                width: 60%;
+            }
+            .action-button {
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <h1>El Rosco de Sistemas Operativos 🖥️</h1>
+        
+        <div id="rosco-container">
+            </div>
+
+        <div id="definition-area">
+            <div id="current-letter"></div>
+            <p id="definition">Pulsa **Empezar** para iniciar el Rosco.</p>
+
+            <div id="input-area">
+                <input type="text" id="answer-input" placeholder="Escribe tu respuesta..." disabled>
+                <button id="submit-button" class="action-button" disabled>Enviar</button>
+                <button id="pass-button" class="action-button" disabled>Pasapalabra</button>
+            </div>
+            
+            <button id="start-button" class="action-button reset-button">Empezar Rosco</button>
+
+        </div>
+        
+        <div id="score-board">
+            <span id="score-correct" style="color: #43a047;">Aciertos: 0</span>
+            <span id="score-incorrect" style="color: #e53935;">Fallos: 0</span>
+            <span id="score-remaining">Pendientes: 27</span>
+        </div>
+
+        <div id="final-message"></div>
+
+    </div>
+    
+    <script>
+        const ROPE_RADIUS = 250; // Radio del círculo del Rosco (en píxeles)
+        const CENTER_OFFSET = 250; // La mitad de 500px (ancho/alto del rosco)
+        const SLOT_SIZE = 50; // Tamaño del slot de la letra
+        const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZÑ";
+
+        // --- BANCO DE PALABRAS: INSTALACIÓN Y ACTUALIZACIÓN DE SISTEMAS OPERATIVOS (27 en total) ---
+        const wordBank = [
+            { id: 'A', definition: "CON la letra A. Tipo de instalación que se realiza sin la interacción del usuario una vez que ha comenzado (desatendida).", answer: "AUTOMÁTICA" },
+            { id: 'B', definition: "CON la letra B. Siglas de la interfaz de firmware heredada, anterior a UEFI, usada para inicializar el hardware.", answer: "BIOS" },
+            { id: 'C', definition: "CON la letra C. Proceso de dividir un disco duro en secciones lógicas antes de formatearlo para la instalación.", answer: "PARTICIÓN" },
+            { id: 'D', definition: "CON la letra D. Herramienta de Windows para gestionar particiones de disco, crear volúmenes, y asignar letras de unidad (Su nombre en inglés es Disk Management).", answer: "DISCO" },
+            { id: 'E', definition: "CON la letra E. Archivo ejecutable que se utiliza para iniciar la instalación de un programa o un sistema operativo.", answer: "EJECUTABLE" },
+            { id: 'F', definition: "CON la letra F. Proceso de preparar un volumen para la instalación del SO, creando un sistema de archivos (ej. NTFS, ext4).", answer: "FORMATEO" },
+            { id: 'G', definition: "CON la letra G. En Linux, acrónimo para el gestor de arranque más común que permite seleccionar qué SO cargar.", answer: "GRUB" },
+            { id: 'H', definition: "CON la letra H. Proceso de fortalecer la seguridad de un SO desactivando servicios innecesarios y aplicando parches.", answer: "HARDENING" },
+            { id: 'I', definition: "CON la letra I. Siglas de la dirección numérica única que identifica un dispositivo en una red (necesaria para la configuración de red).", answer: "IP" },
+            { id: 'J', definition: "CONTIENE la letra J. Un tipo de partición que puede contener varias particiones lógicas dentro del esquema MBR, diferente a la primaria.", answer: "EXTENDIDA" },
+            { id: 'K', definition: "CON la letra K. Componente central de un sistema operativo que gestiona los recursos del hardware y se encarga de la comunicación.", answer: "KERNEL" },
+            { id: 'L', definition: "CON la letra L. Tipo de instalación que sobrescribe el sistema operativo anterior, borrando todos los datos y configuraciones.", answer: "LIMPIA" },
+            { id: 'M', definition: "CON la letra M. Acrónimo para el esquema de particionamiento moderno que reemplazó a MBR y soporta discos mayores a 2TB.", answer: "GPT" },
+            { id: 'N', definition: "CON la letra N. Protocolo de red que asigna automáticamente direcciones IP y otra información de configuración a los dispositivos durante la instalación.", answer: "DHCP" },
+            { id: 'Ñ', definition: "CONTIENE la letra Ñ. Se dice del proceso de configuración donde se seleccionan el lenguaje, la hora y el teclado que va a usar el sistema.", answer: "INSTALACIÓN" },
+            { id: 'O', definition: "CON la letra O. Proceso de cargar la primera parte del SO, que a su vez carga el resto del sistema, después de la BIOS/UEFI.", answer: "ARRANQUE" },
+            { id: 'P', definition: "CON la letra P. Pequeña unidad de código que se aplica a un software o sistema operativo para corregir fallos de seguridad o errores.", answer: "PARCHE" },
+            { id: 'Q', definition: "CONTIENE la letra Q. Término utilizado para referirse al proceso de restaurar un sistema a un punto de funcionamiento anterior.", answer: "RESTABLECER" },
+            { id: 'R', definition: "CON la letra R. Siglas para el tiempo objetivo de recuperación, el tiempo máximo permitido para que un sistema vuelva a estar operativo tras un fallo.", answer: "RTO" },
+            { id: 'S', definition: "CON la letra S. Proceso de copiar los archivos y configuraciones de un SO a otro equipo diferente o a una versión más reciente.", answer: "MIGRACIÓN" },
+            { id: 'T', definition: "CON la letra T. Dispositivo de almacenamiento temporal (USB o DVD) desde el que se ejecuta el instalador del SO.", answer: "UNIDAD BOOTABLE" },
+            { id: 'U', definition: "CON la letra U. Siglas de la interfaz de firmware moderna que reemplazó a BIOS, ofreciendo más flexibilidad y seguridad (ej. Secure Boot).", answer: "UEFI" },
+            { id: 'V', definition: "CON la letra V. Entorno de software que simula un sistema informático completo y permite ejecutar un SO dentro de otro SO.", answer: "VIRTUALIZACIÓN" },
+            { id: 'W', definition: "CONTIENE la letra W. Nombre de la utilidad en Windows que permite crear una unidad de recuperación para reinstalar el SO (en inglés).", answer: "RECOVERY" },
+            { id: 'X', definition: "CONTIENE la letra X. Conjunto de archivos necesarios para que un dispositivo de hardware específico funcione correctamente con el SO.", answer: "DRIVER" },
+            { id: 'Y', definition: "CONTIENE la letra Y. Siglas para la herramienta de configuración y administración en distribuciones como openSUSE.", answer: "YAST" },
+            { id: 'Z', definition: "CONTIENE la letra Z. Se dice del proceso de dejar el disco duro completamente libre, sin particiones ni datos, antes de una instalación.", answer: "BORRADO" }
+        ];
+
+        let roscoState = [];
+        let currentIndex = 0;
+        let correctCount = 0;
+        let incorrectCount = 0;
+        let isGameRunning = false;
+        
+        const roscoContainer = document.getElementById('rosco-container');
+        const currentLetterDisplay = document.getElementById('current-letter');
+        const definitionDisplay = document.getElementById('definition');
+        const answerInput = document.getElementById('answer-input');
+        const submitButton = document.getElementById('submit-button');
+        const passButton = document.getElementById('pass-button');
+        const startButton = document.getElementById('start-button');
+        const scoreCorrect = document.getElementById('score-correct');
+        const scoreIncorrect = document.getElementById('score-incorrect');
+        const scoreRemaining = document.getElementById('score-remaining');
+        const finalMessage = document.getElementById('final-message');
+
+        // --- 1. SETUP INICIAL ---
+
+        /**
+         * Inicializa el estado del Rosco y la interfaz.
+         */
+        function initializeGame() {
+            // Inicializar estado de las 27 letras (A-Z, Ñ)
+            roscoState = wordBank.map((word, index) => ({
+                ...word,
+                index: index,
+                status: 'default' // 'default', 'current', 'correct', 'incorrect', 'passed'
+            }));
+
+            currentIndex = 0;
+            correctCount = 0;
+            incorrectCount = 0;
+            isGameRunning = false;
+            finalMessage.style.display = 'none';
+
+            // 1. Dibuja el Rosco en el HTML
+            drawRosco();
+
+            // 2. Resetea puntuación
+            updateScoreBoard();
+            
+            // 3. Resetea el área de pregunta
+            currentLetterDisplay.textContent = 'A - Z';
+            definitionDisplay.textContent = 'Pulsa "Empezar Rosco" para iniciar la partida.';
+            answerInput.value = '';
+            
+            // 4. Habilita/Deshabilita controles
+            answerInput.disabled = true;
+            submitButton.disabled = true;
+            passButton.disabled = true;
+            startButton.style.display = 'block';
+        }
+
+        /**
+         * Dibuja los slots de las letras en el círculo.
+         */
+        function drawRosco() {
+            roscoContainer.innerHTML = '';
+            const totalSlots = roscoState.length;
+            const angleStep = 360 / totalSlots;
+
+            roscoState.forEach((item, index) => {
+                const angle = index * angleStep - 90; // -90 para empezar arriba
+                const rad = angle * (Math.PI / 180); // Convertir a radianes
+
+                // Fórmula para posición en círculo: (R * cos(ángulo), R * sen(ángulo))
+                const x = CENTER_OFFSET + ROPE_RADIUS * Math.cos(rad) - (SLOT_SIZE / 2);
+                const y = CENTER_OFFSET + ROPE_RADIUS * Math.sin(rad) - (SLOT_SIZE / 2);
+
+                const slot = document.createElement('div');
+                slot.className = `letter-slot status-${item.status}`;
+                slot.id = `slot-${item.id}`;
+                slot.textContent = item.id;
+                slot.style.left = `${x}px`;
+                slot.style.top = `${y}px`;
+                roscoContainer.appendChild(slot);
+            });
+        }
+        
+        // --- 2. LÓGICA DEL JUEGO ---
+
+        /**
+         * Empieza el rosco, buscando la primera letra pendiente.
+         */
+        function startGame() {
+            isGameRunning = true;
+            startButton.style.display = 'none';
+            answerInput.disabled = false;
+            submitButton.disabled = false;
+            passButton.disabled = false;
+            
+            // Busca la primera letra pendiente
+            currentIndex = roscoState.findIndex(item => item.status === 'default' || item.status === 'passed');
+            if (currentIndex !== -1) {
+                loadCurrentQuestion();
+            } else {
+                // Si todo ya está completado/marcado, termina el juego inmediatamente
+                endGame();
+            }
+        }
+
+        /**
+         * Busca la siguiente letra que esté en estado 'default' o 'passed'.
+         */
+        function findNextQuestionIndex() {
+            // Recorre desde la posición actual + 1 hasta el final
+            for (let i = currentIndex + 1; i < roscoState.length; i++) {
+                if (roscoState[i].status === 'default' || roscoState[i].status === 'passed') {
+                    return i;
+                }
+            }
+            // Recorre desde el inicio hasta la posición actual
+            for (let i = 0; i < currentIndex; i++) {
+                if (roscoState[i].status === 'default' || roscoState[i].status === 'passed') {
+                    return i;
+                }
+            }
+            // Si no encuentra ninguna, devuelve -1
+            return -1;
+        }
+
+        /**
+         * Carga la pregunta actual en la interfaz.
+         */
+        function loadCurrentQuestion() {
+            if (currentIndex === -1) {
+                return; // No hay más preguntas
+            }
+
+            // Desmarcar la letra anterior si no es la primera
+            roscoState.forEach((item, index) => {
+                if (item.status === 'current') {
+                    // Si el estado anterior era 'default', vuelve a 'passed' o 'default' según sea.
+                    item.status = (item.statusBeforeCurrent === 'default' ? 'default' : 'passed');
+                    delete item.statusBeforeCurrent; // Limpiamos el estado temporal
+                }
+                document.getElementById(`slot-${item.id}`).className = `letter-slot status-${item.status}`;
+            });
+            
+            const currentItem = roscoState[currentIndex];
+            currentItem.statusBeforeCurrent = currentItem.status; // Guardar el estado anterior
+            currentItem.status = 'current';
+
+            // Actualizar el slot en el Rosco
+            document.getElementById(`slot-${currentItem.id}`).className = `letter-slot status-current`;
+
+            // Actualizar el área de juego
+            currentLetterDisplay.textContent = currentItem.id;
+            definitionDisplay.textContent = currentItem.definition;
+            answerInput.value = '';
+            answerInput.focus();
+        }
+
+        /**
+         * Procesa la respuesta del usuario.
+         * @param {string} action - 'submit' o 'pass'.
+         */
+        function processAnswer(action) {
+            if (!isGameRunning || currentIndex === -1) return;
+
+            const currentItem = roscoState[currentIndex];
+            let nextIndex = -1;
+
+            if (action === 'submit') {
+                // Normaliza la respuesta del usuario (quita espacios y acentos/tilde)
+                const normalize = (str) => str.trim().toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                
+                const userAnswer = normalize(answerInput.value);
+                const correctAnswer = normalize(currentItem.answer);
+
+                if (userAnswer === correctAnswer) {
+                    currentItem.status = 'correct';
+                    correctCount++;
+                } else {
+                    currentItem.status = 'incorrect';
+                    incorrectCount++;
+                }
+                
+                // Aplicar color final y limpiar estado temporal
+                document.getElementById(`slot-${currentItem.id}`).className = `letter-slot status-${currentItem.status}`;
+                delete currentItem.statusBeforeCurrent;
+
+                nextIndex = findNextQuestionIndex();
+            } else if (action === 'pass') {
+                // Si la letra ya estaba pasada, permanece pasada, si era 'default' pasa a 'passed'.
+                currentItem.status = 'passed'; 
+                
+                document.getElementById(`slot-${currentItem.id}`).className = `letter-slot status-passed`;
+                delete currentItem.statusBeforeCurrent;
+                
+                nextIndex = findNextQuestionIndex();
+            }
+
+            updateScoreBoard();
+
+            if (nextIndex === -1) {
+                // No hay más preguntas pendientes, terminar el juego
+                endGame();
+            } else {
+                // Continuar a la siguiente pregunta
+                currentIndex = nextIndex;
+                loadCurrentQuestion();
+            }
+        }
+
+        /**
+         * Actualiza el marcador.
+         */
+        function updateScoreBoard() {
+            const remaining = roscoState.filter(item => item.status === 'default' || item.status === 'passed').length;
+            
+            scoreCorrect.textContent = `Aciertos: ${correctCount}`;
+            scoreIncorrect.textContent = `Fallos: ${incorrectCount}`;
+            scoreRemaining.textContent = `Pendientes: ${remaining}`;
+        }
+
+        /**
+         * Finaliza el juego y muestra el mensaje final.
+         */
+        function endGame() {
+            isGameRunning = false;
+            answerInput.disabled = true;
+            submitButton.disabled = true;
+            passButton.disabled = true;
+            startButton.textContent = "Reiniciar Rosco";
+            startButton.style.display = 'block';
+
+            let message;
+            if (correctCount === roscoState.length) {
+                message = `¡FELICIDADES! ¡Has completado el Rosco con ${correctCount} aciertos! ¡Pleno!`;
+                finalMessage.style.borderColor = '#43a047';
+                finalMessage.style.backgroundColor = '#e8f5e9';
+            } else {
+                message = `Rosco finalizado. Aciertos: ${correctCount}, Fallos: ${incorrectCount}. Quedan ${roscoState.length - (correctCount + incorrectCount)} palabras.`;
+                finalMessage.style.borderColor = '#ff9800';
+                finalMessage.style.backgroundColor = '#fff8e1';
+            }
+            
+            currentLetterDisplay.textContent = '¡FIN DEL ROSCO!';
+            definitionDisplay.textContent = '';
+            finalMessage.textContent = message;
+            finalMessage.style.display = 'block';
+        }
+
+        // --- 3. MANEJADORES DE EVENTOS ---
+
+        // Iniciar/Reiniciar el juego
+        startButton.addEventListener('click', () => {
+            if (startButton.textContent === "Reiniciar Rosco") {
+                initializeGame(); // Reiniciar variables y Rosco
+            }
+            startGame();
+        });
+
+        // Botón Enviar
+        submitButton.addEventListener('click', () => processAnswer('submit'));
+
+        // Botón Pasapalabra
+        passButton.addEventListener('click', () => processAnswer('pass'));
+
+        // Tecla Enter para Enviar (mientras el input está activo)
+        answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault(); 
+                processAnswer('submit');
+            }
+        });
+
+        // Inicializa el juego al cargar la página
+        initializeGame();
+    </script>
+</body>
+</html>

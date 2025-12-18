@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Roscos Educativos</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --bg-color: #f8fafc;
+            --text-color: #1e293b;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .rosco-card {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            text-decoration: none;
+            color: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .rosco-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .rosco-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-transform: capitalize;
+        }
+
+        .icon {
+            background: #eff6ff;
+            color: var(--primary-color);
+            padding: 8px;
+            border-radius: 50%;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🎮 Mis Roscos de Repaso</h1>
+
+    <div class="container">
+        <a href="roscos/rosco_hardware.html" class="rosco-card">
+            <span class="rosco-title">Hardware</span>
+            <span class="icon">→</span>
+        </a>
+
+        <a href="roscos/rosco_informatica.html" class="rosco-card">
+            <span class="rosco-title">Informática General</span>
+            <span class="icon">→</span>
+        </a>
+
+        <a href="roscos/rosco_protocolos_redes.html" class="rosco-card">
+            <span class="rosco-title">Protocolos y Redes</span>
+            <span class="icon">→</span>
+        </a>
+
+        <a href="roscos/rosco_seguridad_informacion.html" class="rosco-card">
+            <span class="rosco-title">Seguridad de la Información</span>
+            <span class="icon">→</span>
+        </a>
+
+        <a href="roscos/rosco_seguridad_informatica.html" class="rosco-card">
+            <span class="rosco-title">Seguridad Informática</span>
+            <span class="icon">→</span>
+        </a>
+
+        <a href="roscos/rosco_sistemas_operativos.html" class="rosco-card">
+            <span class="rosco-title">Sistemas Operativos</span>
+            <span class="icon">→</span>
+        </a>
+    </div>
+
+</body>
+</html>
